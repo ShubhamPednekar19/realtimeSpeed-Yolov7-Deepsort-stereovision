@@ -127,7 +127,7 @@ if __name__ == '__main__':
     right_path = './data/1/Right.mp4'
 
     detector = Detector(classes = [0,2,3,4,6,8]) # it'll detect ONLY [person,horses,sports ball]. class = None means detect all classes. List info at: "data/coco.yaml"
-    detector.load_model('./yolov7.pt',) # pass the path to the trained weight file
+    detector.load_model('./pretrained_models/Yolov7/yolov7.pt',) # pass the path to the trained weight file
 
     # Initialise  class that binds detector and tracker in one class
     yoloTracker = YOLOv7_DeepSORT(reID_model_path="./pretrained_models/deepsort/mars-small128.pb", detector=detector)
