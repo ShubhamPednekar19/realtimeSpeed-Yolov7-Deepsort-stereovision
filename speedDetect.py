@@ -130,7 +130,7 @@ if __name__ == '__main__':
     detector.load_model('./yolov7.pt',) # pass the path to the trained weight file
 
     # Initialise  class that binds detector and tracker in one class
-    yoloTracker = YOLOv7_DeepSORT(reID_model_path="./deep_sort/model_weights/mars-small128.pb", detector=detector)
+    yoloTracker = YOLOv7_DeepSORT(reID_model_path="./pretrained_models/deepsort/mars-small128.pb", detector=detector)
 
     # Open the video files
     left = cv2.VideoCapture(left_path)
