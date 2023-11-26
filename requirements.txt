@@ -1,0 +1,14 @@
+opencv-python
+scikit-image
+tensorboard
+matplotlib
+tqdm
+timm==0.5.4
+
+pytorch==2.1.0
+pytorch-cuda==11.7
+pytorch-mutex==1.0
+
+torchvision==0.16.0
+torchaudio==2.1.0
+cudatoolkit==11.3
