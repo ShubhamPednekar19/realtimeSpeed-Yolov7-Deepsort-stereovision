@@ -119,8 +119,6 @@ def calculateSpeed(Z, zFromPrevFrame, fps):
 
 if __name__ == '__main__':
 
-    print("Hey")
-
 
     # Specify the paths to your two videos
     left_path = './data/1/Left.mp4'
