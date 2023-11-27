@@ -10,22 +10,6 @@ This is code implementation of the Real-time speed detection
 ## Abstract
 As Intelligent Transportation Systems continue to evolve and advance, there is a growing focus on achieving real-time and precise detection of speed information. Researchers are increasingly drawn to video-based vehicle speed detection using machine vision, appreciating its practical convenience and various benefits. This report describes a real-time speed detection system that uses stereo vision to estimate obstacle depth i.e. distance from the camera. By integrating YOLO for object identification and DeepSORT for tracking, our system is able to monitor dynamic traffic scenarios in real time with accuracy and efficiency. The report shows the effectiveness of our method by outlining the system architecture, implementation specifics, and outcomes. Under the direction of Professor Dr. Ayan Mondal, this research showcases the potential of tate-of-the-art technology for improved speed detection, marking a significant advancement in intelligent transportation systems.
 
-## Demo
-<p align="center">
-  <img src="./data/4/Left.gif" alt="First GIF" width="48%">
-  <img src="./data/4/Disparity.gif" alt="Second GIF" width="48%">
-</p>
-<p align="center">
-  Left camera video | Disparity view 
-</p>
-
-<p align="center">
-  <img src="./data/4/Depth.gif" alt="Third GIF" width="48%">
-  <img src="./data/4/Speed.gif" alt="Fourth GIF" width="48%">
-</p>
-<p align="center">
-  Depth Map of video | Speed detection of objects 
-</p>
 
 
 ## Setup
@@ -85,3 +69,20 @@ Update the left and right video path in code, we will add the argument inputs sh
 python speedDetect.py
 ```
 
+
+## Demo
+<p align="center">
+  <img src="./data/4/Left.gif" alt="First GIF" width="48%">
+  <img src="./data/4/Disparity.gif" alt="Second GIF" width="48%">
+</p>
+<p align="center">
+  Left camera video | Disparity view 
+</p>
+
+<p align="center">
+  <img src="./data/4/Depth.gif" alt="Third GIF" width="48%">
+  <img src="./data/4/Speed.gif" alt="Fourth GIF" width="48%">
+</p>
+<p align="center">
+  Depth Map of video | Speed detection of objects 
+</p>
