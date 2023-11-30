@@ -1,9 +1,8 @@
 import cv2
 import numpy as np
+import math
 import sys
 sys.path.append('core')
-import cv2
-import numpy as np
 import glob
 from pathlib import Path
 from tqdm import tqdm
@@ -104,14 +103,14 @@ def load_frame(frame):
     img = torch.from_numpy(img).permute(2, 0, 1).float()
     return img[None].to(DEVICE)
 
-def disparity_to_depth(disparity, baseline, focal_length):
+def disparityToDepth(disparity, baseline, focal_length):
     # Convert disparity to depth using the formula: depth = baseline * focal_length / disparity
     depth = baseline * focal_length / (disparity + 1e-6)  # Adding a small value to avoid division by zero
     return depth
 
 
-def calculateSpeed(Z, zFromPrevFrame, fps):
-    dist = Z - zFromPrevFrame
+def calculateSpeed(X, xFromPrevFrame, Z, zFromPrevFrame, fps):
+    dist = math.sqrt((X - xFromPrevFrame)**2 + (Z - zFromPrevFrame)**2)
     speed = (dist * fps) 
     speed = speed * 3.6
     return speed
@@ -149,6 +148,7 @@ if __name__ == '__main__':
     frame_count = 0
     fps_list = np.array([])
 
+    xFromPrevFrame = np.zeros(100)
     zFromPrevFrame = np.zeros(100)
     speed =  np.zeros(100)
 
@@ -236,7 +236,8 @@ if __name__ == '__main__':
             avg_fps = np.mean(fps_list)
             print('Stereo runtime: {:.3f}'.format(1000/avg_fps))
 
-            depth = disparity_to_depth(disp.squeeze(), baseline, focal_length)
+            # Depth map from disparity
+            depth = disparityToDepth(disp.squeeze(), baseline, focal_length)
         
         for track in yoloTracker.tracker.tracks:  # update new findings AKA tracks
             if not track.is_confirmed() or track.time_since_update > 1:
@@ -247,22 +248,18 @@ if __name__ == '__main__':
             color = colors[int(track.track_id) % len(colors)]  # draw bbox on screen
             color = [i * 255 for i in color]
 
-            # Computing centre of bounding box
-            if bbox[2] >= width:
-                bbox[2] = width
+            # Exception case
+            # if bbox[2] >= width:
+            #     bbox[2] = width
 
+            # Computing centre of bounding box
             x_coordinate = (int(bbox[0]) + int(bbox[2]))//2
             y_coordinate = (int(bbox[1]) + int(bbox[3]))//2
 
             if x_coordinate > 1242:
                 print(str(y_coordinate) + " " + str(x_coordinate))
-            
 
             
-
-            # if x_coordinate > width and y_coordinate > width:
-            #     continue
-                
             depth_at_coordinate = depth[y_coordinate, x_coordinate]
 
             depth_at_coordinate = depth_at_coordinate.cpu().numpy()
@@ -272,31 +269,20 @@ if __name__ == '__main__':
             X,Y = find_3d_coordinates(x_coordinate, y_coordinate, Z, focal_length, width, height)
 
             if frame_count % 3 == 0:
-                speed[track.track_id] = calculateSpeed(Z, zFromPrevFrame[track.track_id], avg_fps )
+                speed[track.track_id] = calculateSpeed(X, xFromPrevFrame[track.track_id], Z, zFromPrevFrame[track.track_id], avg_fps )
+                xFromPrevFrame[track.track_id] = X
                 zFromPrevFrame[track.track_id] = Z
-
-
 
             cv2.rectangle(frame1, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color, 2)
             cv2.circle(frame1, (x_coordinate, y_coordinate),1, color, 2)
             cv2.rectangle(frame1, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(class_name)+len(str(track.track_id)))*17, int(bbox[1])), color, -1)
-            cv2.putText(frame1, str(track.track_id) + " : " + str("{:.1f}".format(X)) + " " + str("{:.1f}".format(depth_at_coordinate)) ,(int(bbox[0]), int(bbox[1]-11)),0, 0.3, (255,255,255),1, lineType=cv2.LINE_AA)  
-            # cv2.putText(frame1, str(track.track_id) + " : " + str("{:.1f}".format(speed[track.track_id]))  ,(int(bbox[0]), int(bbox[1]-11)),0, 0.3, (255,255,255),1, lineType=cv2.LINE_AA)  
-
-
+            # cv2.putText(frame1, str(track.track_id) + " : " + str("{:.1f}".format(X)) + " " + str("{:.1f}".format(depth_at_coordinate)) ,(int(bbox[0]), int(bbox[1]-11)),0, 0.3, (255,255,255),1, lineType=cv2.LINE_AA)  
+            cv2.putText(frame1, str(track.track_id) + " : " + str("{:.1f}".format(speed[track.track_id]))  ,(int(bbox[0]), int(bbox[1]-11)),0, 0.3, (255,255,255),1, lineType=cv2.LINE_AA)  
 
         result = np.asarray(frame1)
         result = cv2.cvtColor(frame1, cv2.COLOR_RGB2BGR)
         out.write(result)
-        # Perform depth calculation every 3 frames
-            # depth = (2*depth).data.cpu().numpy().squeeze().astype(np.uint8) 
-            # depth = cv2.applyColorMap(depth, cv2.COLORMAP_PLASMA) 
 
-            # Write the depth map visualization to the output video
-            # cv2.waitKey(1)
-            # videoWrite.write(depth)
-
-            # videoWrite.write(depth)
         # Increment frame count
         frame_count += 1
 
